@@ -597,10 +597,12 @@ sup { font-size: .55em; vertical-align: super; }
 .dtable .name { font-weight: 600; color: var(--tx); }
 .dtable .val  { font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--cyan); }
 
-.m-bar-wrap { display: flex; align-items: center; gap: 10px; }
-.m-track { flex: 1; height: 5px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; max-width: 140px; }
+.m-bar-wrap { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 180px; }
+.m-bar-header { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.m-metric-tag { font-size: 0.65rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; border: 1px solid; letter-spacing: 0.02em; text-transform: capitalize; }
+.m-track { height: 5px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; width: 100%; }
 .m-fill { height: 100%; border-radius: 3px; background: var(--grad); transition: width .6s cubic-bezier(.4,0,.2,1); }
-.m-pct { font-size: .68rem; color: var(--tx2); min-width: 34px; text-align: right; }
+.m-pct { font-size: .68rem; color: var(--tx2); font-weight: 600; text-align: right; }
 
 .info-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; padding: 16px 18px; }
 .info-chip { background: var(--bg-elevated); border-radius: var(--r-sm); padding: 13px 15px; }

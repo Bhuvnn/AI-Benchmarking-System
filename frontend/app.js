@@ -629,11 +629,27 @@ async function loadMetrics(pid, rid) {
     const d = await api(`/projects/${pid}/runs/${rid}/metrics`); const m = d.metrics || [];
     if (!m.length) { b.innerHTML = '<div class="empty-msg">No metrics logged</div>'; return; }
     const mx = Math.max(...m.map(x => Math.abs(parseFloat(x.metric_value) || 0)), 1);
-    b.innerHTML = `<table class="dtable"><thead><tr><th>Metric</th><th>Value</th><th>Relative Magnitude</th></tr></thead><tbody>${m.map(x => {
-      const v = parseFloat(x.metric_value) || 0;
-      const pct = Math.min((Math.abs(v) / mx) * 100, 100);
-      const display = v <= 1 ? (v * 100).toFixed(2) + '%' : v.toFixed(4);
-      return `<tr><td class="name">${esc(x.metric_name)}</td><td class="val">${display}</td><td><div class="m-bar-wrap"><div class="m-track"><div class="m-fill" style="width:${pct}%"></div></div><span class="m-pct">${pct.toFixed(0)}%</span></div></td></tr>`;
+    b.innerHTML = `<table class="dtable"><thead><tr><th>Metric</th><th>Value</th><th>Breakdown</th></tr></thead><tbody>${m.map(x => {
+      const v    = parseFloat(x.metric_value) || 0;
+      const pct  = Math.min((Math.abs(v) / mx) * 100, 100);
+      const isLoss = x.metric_name.toLowerCase().includes('loss');
+      const barColor = isLoss ? 'var(--err,#f87171)' : 'var(--acc,#22d3ee)';
+      // Human-readable label: "accuracy · 85.00%" or "box_loss · 1.8420"
+      const display   = v <= 1 ? (v * 100).toFixed(2) + '%' : v.toFixed(4);
+      const barLabel  = `${capitalize(x.metric_name)} · ${display}`;
+      return `<tr>
+        <td class="name">${esc(x.metric_name)}</td>
+        <td class="val">${display}</td>
+        <td>
+          <div class="m-bar-wrap">
+            <div class="m-bar-header">
+              <span class="m-metric-tag" style="background:${barColor}22;color:${barColor};border-color:${barColor}44">${capitalize(x.metric_name)}</span>
+              <span class="m-pct">${pct.toFixed(0)}%</span>
+            </div>
+            <div class="m-track"><div class="m-fill" style="width:${pct}%;background:${barColor}"></div></div>
+          </div>
+        </td>
+      </tr>`;
     }).join('')}</tbody></table>`;
   } catch { b.innerHTML = '<div class="empty-msg">Failed to load metrics</div>'; }
 }
