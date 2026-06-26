@@ -477,13 +477,38 @@ function renderAnBarChart(runs, allMetricNames) {
       const v = m ? parseFloat(m.metric_value) : 0;
       const pct = Math.min((Math.abs(v) / maxVal) * 100, 100);
       const color = VERSION_COLORS[mi % VERSION_COLORS.length];
-      bars += `<div class="bar-single" style="height:${Math.max(pct, 2)}%;background:${color};animation-delay:${ri * 80 + mi * 40}ms"><div class="bar-val">${v <= 1 ? (v * 100).toFixed(1) + '%' : v.toFixed(3)}</div></div>`;
+      bars += `<div class="bar-single" style="height:${Math.max(pct, 2)}%;background:${color};animation-delay:${ri * 80 + mi * 40}ms" data-metric="${esc(mn)}" data-val="${v}" data-ver="${esc(r.version_name)}"><div class="bar-val">${v <= 1 ? (v * 100).toFixed(1) + '%' : v.toFixed(3)}</div></div>`;
     });
     bars += `</div><div class="bar-group-label">${esc(r.version_name)}</div></div>`;
   });
   bars += '</div>';
 
-  container.innerHTML = `<div class="bar-chart-wrap">${yAxis}${bars}</div>`;
+  container.innerHTML = `<div class="bar-chart-wrap" style="position:relative">${yAxis}${bars}</div>`;
+
+  // Hover tooltips for bar chart
+  let tt = document.getElementById('an-bar-tt');
+  if (!tt) {
+    tt = document.createElement('div');
+    tt.id = 'an-bar-tt';
+    tt.className = 'chart-tooltip';
+    tt.style.zIndex = '9999';
+    document.body.appendChild(tt);
+  }
+
+  container.querySelectorAll('.bar-single').forEach(bar => {
+    bar.addEventListener('mouseenter', () => {
+      const rect = bar.getBoundingClientRect();
+      const v = parseFloat(bar.dataset.val);
+      const displayVal = v <= 1 ? (v * 100).toFixed(2) + '%' : v.toFixed(4);
+      tt.innerHTML = `<div class="tt-metric">${bar.dataset.metric}</div><div class="tt-val">${bar.dataset.ver}: ${displayVal}</div>`;
+      tt.classList.add('show');
+      
+      const ttRect = tt.getBoundingClientRect();
+      tt.style.left = (rect.left + rect.width / 2 - ttRect.width / 2 + window.scrollX) + 'px';
+      tt.style.top = (rect.top - ttRect.height - 8 + window.scrollY) + 'px';
+    });
+    bar.addEventListener('mouseleave', () => tt.classList.remove('show'));
+  });
 }
 
 // ── Parameter Evolution Table ──
@@ -629,24 +654,17 @@ async function loadMetrics(pid, rid) {
     const d = await api(`/projects/${pid}/runs/${rid}/metrics`); const m = d.metrics || [];
     if (!m.length) { b.innerHTML = '<div class="empty-msg">No metrics logged</div>'; return; }
     const mx = Math.max(...m.map(x => Math.abs(parseFloat(x.metric_value) || 0)), 1);
-    b.innerHTML = `<table class="dtable"><thead><tr><th>Metric</th><th>Value</th><th>Breakdown</th></tr></thead><tbody>${m.map(x => {
+    b.innerHTML = `<table class="dtable"><thead><tr><th>Metric</th><th>Value</th><th>Relative Magnitude</th></tr></thead><tbody>${m.map(x => {
       const v    = parseFloat(x.metric_value) || 0;
       const pct  = Math.min((Math.abs(v) / mx) * 100, 100);
-      const isLoss = x.metric_name.toLowerCase().includes('loss');
-      const barColor = isLoss ? 'var(--err,#f87171)' : 'var(--acc,#22d3ee)';
-      // Human-readable label: "accuracy · 85.00%" or "box_loss · 1.8420"
-      const display   = v <= 1 ? (v * 100).toFixed(2) + '%' : v.toFixed(4);
-      const barLabel  = `${capitalize(x.metric_name)} · ${display}`;
+      const display = v <= 1 ? (v * 100).toFixed(2) + '%' : v.toFixed(4);
       return `<tr>
         <td class="name">${esc(x.metric_name)}</td>
         <td class="val">${display}</td>
         <td>
           <div class="m-bar-wrap">
-            <div class="m-bar-header">
-              <span class="m-metric-tag" style="background:${barColor}22;color:${barColor};border-color:${barColor}44">${capitalize(x.metric_name)}</span>
-              <span class="m-pct">${pct.toFixed(0)}%</span>
-            </div>
-            <div class="m-track"><div class="m-fill" style="width:${pct}%;background:${barColor}"></div></div>
+            <div class="m-track"><div class="m-fill" style="width:${pct}%"></div></div>
+            <span class="m-pct">${pct.toFixed(0)}%</span>
           </div>
         </td>
       </tr>`;

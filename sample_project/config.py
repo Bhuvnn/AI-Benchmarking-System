@@ -30,4 +30,3 @@ CONFIG = {
         "save_best_only": True
     }
 }
-
