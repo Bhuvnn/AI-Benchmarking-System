@@ -3,6 +3,7 @@ from benchmark_sdk import benchmark
 from sample_project.config import CONFIG
 try:
     benchmark.start(CONFIG)
+    
     metrics = {
         "accuracy": 0.85,
         "precision": 0.82,

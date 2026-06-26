@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 <div class="app-shell">
@@ -165,67 +165,66 @@
         <div class="project-grid" id="projects-list"></div>
       </section>
 
-      <!-- ─────── PROJECT ANALYTICS DASHBOARD ─────── -->
-      <section class="view hidden" id="view-project-dashboard">
+      <!-- ─────── PROJECT ANALYTICS (combined) ─────── -->
+      <section class="view hidden" id="view-analytics">
         <div class="page-title-row">
           <div>
-            <h1 class="page-title" id="pd-proj-name">Project</h1>
-            <p class="page-desc">Overall analytics &amp; comparison across all training versions</p>
+            <h1 class="page-title" id="an-proj-name">Project</h1>
+            <p class="page-desc">Analytics &amp; version comparison in one place</p>
           </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="ghost-btn" id="pd-btn-runs" onclick="navigateTo('runs',{projectId:S.pid,projectName:S.pname})">← All Versions</button>
-            <button class="primary-btn" id="pd-btn-compare" onclick="navigateTo('compare',{projectId:S.pid,projectName:S.pname})">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-              Compare Versions
-            </button>
-          </div>
+          <button class="ghost-btn" id="an-btn-runs" onclick="navigateTo('runs',{projectId:S.pid,projectName:S.pname})">← All Versions</button>
         </div>
 
-        <!-- Project KPIs -->
+        <!-- KPIs -->
         <div class="kpi-row">
           <div class="kpi-card">
             <div class="kpi-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-            <div class="kpi-data"><span class="kpi-val" id="pd-kpi-best">—</span><span class="kpi-label">Best Accuracy</span></div>
+            <div class="kpi-data"><span class="kpi-val" id="an-kpi-best">—</span><span class="kpi-label">Best Metric</span></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-icon blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-            <div class="kpi-data"><span class="kpi-val" id="pd-kpi-runs">—</span><span class="kpi-label">Total Versions</span></div>
+            <div class="kpi-data"><span class="kpi-val" id="an-kpi-runs">—</span><span class="kpi-label">Total Versions</span></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-icon green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-            <div class="kpi-data"><span class="kpi-val" id="pd-kpi-improvement">—</span><span class="kpi-label">Overall Gain</span></div>
+            <div class="kpi-data"><span class="kpi-val" id="an-kpi-improvement">—</span><span class="kpi-label">Overall Gain</span></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-icon amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-            <div class="kpi-data"><span class="kpi-val" id="pd-kpi-latest">—</span><span class="kpi-label">Latest Version</span></div>
+            <div class="kpi-data"><span class="kpi-val" id="an-kpi-latest">—</span><span class="kpi-label">Latest Version</span></div>
           </div>
         </div>
 
-        <!-- Performance Progression + Metric Comparison (same row) -->
-        <div class="pd-charts-top">
-          <div class="panel pd-panel-trend">
-            <div class="panel-head"><h2>Performance Progression</h2><span class="panel-sub" id="pd-trend-subtitle">All metrics across versions</span></div>
-            <div class="chart-container" id="pd-trend-chart"></div>
-          </div>
-          <div class="panel pd-panel-bar">
-            <div class="panel-head"><h2>Metric Comparison Across Versions</h2></div>
-            <div class="pd-bar-wrap" id="pd-bar-chart"></div>
-          </div>
+        <!-- Version legend -->
+        <div class="compare-header-actions">
+          <div class="compare-legend" id="an-legend"></div>
         </div>
 
-        <!-- Metric improvement cards -->
-        <div class="pd-improvement-row" id="pd-improvement-cards"></div>
+        <!-- Per-metric cards -->
+        <div class="cmp-metrics-row" id="an-metric-cards"></div>
+
+        <!-- Charts row -->
+        <div class="compare-duo">
+          <div class="panel compare-panel">
+            <div class="panel-head"><h2>Performance Trend</h2><span class="panel-sub" id="an-trend-sub">All metrics across versions</span></div>
+            <div class="chart-container" id="an-trend-chart"></div>
+          </div>
+          <div class="panel compare-panel">
+            <div class="panel-head"><h2>Metric Comparison</h2></div>
+            <div class="bar-chart-container" id="an-bar-chart"></div>
+          </div>
+        </div>
 
         <!-- Parameter evolution -->
         <div class="panel" style="margin-bottom:16px">
-          <div class="panel-head"><h2>Parameter Evolution</h2><span class="panel-sub">How hyperparameters changed</span></div>
-          <div class="param-diff-wrap" id="pd-params-table"></div>
+          <div class="panel-head"><h2>Parameter Evolution</h2><span class="panel-sub">How hyperparameters changed across versions</span></div>
+          <div class="param-diff-wrap" id="an-params-table"></div>
         </div>
 
         <!-- Dataset overview -->
         <div class="panel">
           <div class="panel-head"><h2>Dataset Overview</h2></div>
-          <div id="pd-dataset-overview" style="overflow-x:auto"></div>
+          <div id="an-dataset-overview" style="overflow-x:auto"></div>
         </div>
       </section>
 
@@ -233,16 +232,10 @@
       <section class="view hidden" id="view-runs">
         <div class="page-title-row">
           <div><h1 class="page-title" id="runs-title">Runs</h1><p class="page-desc" id="runs-desc">All versions for this project</p></div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="ghost-btn" onclick="navigateTo('project-dashboard',{})">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-              Analytics Dashboard
-            </button>
-            <button class="primary-btn" id="btn-compare" onclick="navigateTo('compare',{})">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-              Compare All Runs
-            </button>
-          </div>
+          <button class="primary-btn" id="btn-analytics" onclick="navigateTo('analytics',{})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Analytics &amp; Compare
+          </button>
         </div>
         <div class="runs-grid" id="runs-list"></div>
       </section>
@@ -288,23 +281,7 @@
         </div>
       </section>
 
-      <!-- ─────── COMPARE VIEW ─────── -->
-      <section class="view hidden" id="view-compare">
-        <div class="page-title-row">
-          <div><h1 class="page-title" id="compare-title">Compare Runs</h1><p class="page-desc" id="compare-desc">Side-by-side comparison of all runs</p></div>
-          <button class="ghost-btn" id="btn-back-runs" onclick="navigateTo('runs',{projectId:S.pid,projectName:S.pname})">← Back to Runs</button>
-        </div>
-        <div class="compare-header-actions">
-          <div class="compare-legend" id="compare-legend"></div>
-        </div>
-        <div class="cmp-metrics-row" id="cmp-metrics-row"></div>
-        <div class="compare-duo">
-          <div class="panel compare-panel"><div class="panel-head"><h2>Metrics Across Versions</h2></div><div class="chart-container" id="chart-trend"></div></div>
-          <div class="panel compare-panel"><div class="panel-head"><h2>Metric Comparison</h2></div><div class="bar-chart-container" id="chart-bars"></div></div>
-        </div>
-        <div class="panel compare-panel" style="margin-bottom:16px"><div class="panel-head"><h2>Parameter Changes</h2></div><div class="param-diff-wrap" id="param-diff"></div></div>
-        <div class="panel compare-panel"><div class="panel-head"><h2>Dataset Comparison</h2></div><div id="dataset-diff" style="overflow-x:auto;"></div></div>
-      </section>
+
 
       <!-- ─────── ERROR ─────── -->
       <section class="view hidden" id="view-error">
@@ -320,6 +297,6 @@
   </div><!-- /main -->
 </div><!-- /app-shell -->
 
-<script src="app.js?v=2"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

@@ -31,4 +31,3 @@ CONFIG = {
     }
 }
 
-model.train( epochs=CONFIG["training"]["epochs"],)

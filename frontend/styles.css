@@ -539,34 +539,47 @@ sup { font-size: .55em; vertical-align: super; }
 .sys-badge-icon.py  { background: var(--emerald-bg);   color: var(--emerald); }
 .sys-badge-icon.gpu { background: var(--amber-bg);      color: var(--amber); }
 .sys-badge-text { display: flex; flex-direction: column; gap: 1px; }
-.sys-badge-label { font-size: .58rem; text-transform: uppercase; letter-spacing: .08em; color: var(--tx3); font-weight: 700; }
-.sys-badge-val { font-weight: 600; color: var(--tx); font-size: .8rem; }
+.sys-badge-label {
+  font-size: .62rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--tx2); font-weight: 600;
+}
+.sys-badge-val { font-weight: 700; color: var(--tx); font-size: .84rem; }
 
 /* ══════════════════════════════════════════
    DETAIL GRID (Run detail)
-   Layout: flex column → Metrics (full width) / bottom-row (flex row)
-   Bottom row: Parameters (left, flex:1) | right-col (flex:1, flex column)
-   Right col:  Dataset (auto height) + Artifacts (flex:1, fills remainder)
+   Layout:
+     Row 1 — Metrics (full width)
+     Row 2 — Parameters (left 50%) | Dataset + Artifacts (right 50%, stacked)
 ══════════════════════════════════════════ */
-.detail-grid        { display: flex; flex-direction: column; gap: 14px; }
-.detail-bottom-row  { display: flex; gap: 14px; align-items: stretch; }
-#sec-params         { flex: 1; min-width: 0; }
-.detail-right-col   { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
-#sec-artifacts      { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.detail-grid       { display: flex; flex-direction: column; gap: 14px; }
+.detail-bottom-row { display: flex; gap: 14px; align-items: stretch; }
+
+/* Parameters fills left half, grows to its content height */
+#sec-params        { flex: 1; min-width: 0; }
+
+/* Right column fills exact same height as Parameters via flexbox stretch */
+.detail-right-col  {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  gap: 14px;
+}
+
+/* Artifacts card expands to fill remaining height after Dataset */
+#sec-artifacts     { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 #sec-artifacts .sec-body { flex: 1; overflow-y: auto; }
 
+.detail-section {
   background: var(--bg-card); border: 1px solid var(--bdr);
   border-radius: var(--r); overflow: hidden;
   animation: fadeUp var(--smooth) both;
 }
-.detail-section.wide { grid-column: 1 / -1; }
 .sec-head {
   display: flex; align-items: center; gap: 10px;
   padding: 13px 18px; border-bottom: 1px solid var(--bdr);
   color: var(--tx2);
 }
 .sec-head h3 { font-size: .88rem; font-weight: 700; color: var(--tx); }
-.sec-head svg { opacity: .6; flex-shrink: 0; }
+.sec-head svg { opacity: .7; flex-shrink: 0; }
 .sec-body { min-height: 60px; }
 
 /* ══════════════════════════════════════════
@@ -582,16 +595,16 @@ sup { font-size: .55em; vertical-align: super; }
 .dtable tr:last-child td { border-bottom: none; }
 .dtable tr:hover td { background: var(--bg-hover); }
 .dtable .name { font-weight: 600; color: var(--tx); }
-.dtable .val { font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--cyan); }
+.dtable .val  { font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--cyan); }
 
 .m-bar-wrap { display: flex; align-items: center; gap: 10px; }
 .m-track { flex: 1; height: 5px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; max-width: 140px; }
 .m-fill { height: 100%; border-radius: 3px; background: var(--grad); transition: width .6s cubic-bezier(.4,0,.2,1); }
-.m-pct { font-size: .68rem; color: var(--tx3); min-width: 34px; text-align: right; }
+.m-pct { font-size: .68rem; color: var(--tx2); min-width: 34px; text-align: right; }
 
 .info-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; padding: 16px 18px; }
 .info-chip { background: var(--bg-elevated); border-radius: var(--r-sm); padding: 13px 15px; }
-.chip-label { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--tx3); margin-bottom: 5px; }
+.chip-label { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--tx2); margin-bottom: 5px; }
 .chip-val { font-size: .95rem; font-weight: 700; color: var(--tx); }
 .chip-val.mono { font-family: 'JetBrains Mono', monospace; font-size: .85rem; color: var(--cyan); }
 
@@ -657,11 +670,38 @@ sup { font-size: .55em; vertical-align: super; }
 .tt-metric { color: var(--tx2); font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
 .tt-val { color: var(--tx); font-family: 'JetBrains Mono', monospace; font-size: .85rem; font-weight: 700; }
 
-/* ── Bar chart ── */
+/* ── Bar chart with Y-axis scale ── */
+.bar-chart-wrap {
+  display: flex; align-items: flex-end; gap: 0;
+  padding: 20px 20px 0 0;
+}
+/* Y-axis: flex column, labels distributed top (max) → bottom (0) */
+.bar-y-axis {
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 44px; flex-shrink: 0;
+  height: 180px; /* must match .bar-group-bars height */
+  margin-bottom: 28px; /* aligns base with bar label row */
+  padding-bottom: 1px;
+}
+.bar-y-tick {
+  display: flex; align-items: center; justify-content: flex-end;
+}
+.bar-y-tick::after {
+  content: ''; width: 5px; height: 1px;
+  background: var(--bdr-bright); margin-left: 4px; flex-shrink: 0;
+}
+.bar-y-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; color: var(--tx2);
+  white-space: nowrap; line-height: 1;
+}
 .bar-chart-container {
-  padding: 20px 20px 0; min-height: 240px;
+  flex: 1; min-width: 0;
+  padding: 0 20px 0 8px; min-height: 240px;
   display: flex; align-items: flex-end; gap: 18px; justify-content: space-around;
-  flex-wrap: wrap;
+  border-left: 1px solid var(--bdr-bright);
 }
 .bar-group { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; min-width: 60px; }
 .bar-group-bars {
@@ -757,8 +797,8 @@ sup { font-size: .55em; vertical-align: super; }
   .sidebar { transform: translateX(-100%); transition: transform var(--smooth); }
   .sidebar.open { transform: none; }
   .main { margin-left: 0; }
-  .detail-grid { grid-template-columns: 1fr; }
-  .detail-section.wide { grid-column: auto; }
+  .detail-bottom-row { flex-direction: column; }
+  #sec-params, .detail-right-col { flex: none; width: 100%; }
   .landing-hero { flex-direction: column; }
   .landing-hero-visual { width: 100%; max-width: 320px; align-self: center; }
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
